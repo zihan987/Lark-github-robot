@@ -68,10 +68,24 @@ async def handle_github_webhook(request: Request):
 
         send_to_feishu(message)
 
+    elif event_type == 'issue_comment':
+        actor = data['comment']['user']['login']
+        repository = data['repository']['name']
+        repository_url = data['repository']['html_url']
+        issue_title = data['issue']['title']
+        issue_url = data['issue']['html_url']
+        comment_body = data['comment']['body']
+
+        message = f"{actor} commented on issue [{issue_title}]({issue_url}) in repository [{repository}]({repository_url})\
+\
+"
+        message += f"Comment: [{comment_body}]"
+
+        send_to_feishu(message)
+
     return {"message": "OK"}
 
 def send_to_feishu(message):
-    # url = "https://open.feishu.cn/open-apis/bot/v2/hook/b9ad5f28-4b43-4d58-9876-88f6b5318947"
     url = "https://open.feishu.cn/open-apis/bot/v2/hook/b2cf824b-9535-41f3-9a33-82df1fd3ba6c"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -89,3 +103,4 @@ def send_to_feishu(message):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
